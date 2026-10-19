@@ -1,0 +1,7 @@
+[workspace]
+members = ["crates/preload", "crates/backend-gtk4", "crates/backend-gtk3", "crates/client"]
+resolver = "2"
+
+[profile.release]
+lto = false
+codegen-units = 1

@@ -1,0 +1,4 @@
+/target
+/build
+scripts/__pycache__/
+*.pyc

@@ -1,0 +1,58 @@
+#!/bin/sh
+# Launch any existing GTK app with the gtk remote socket enabled.
+# Usage: gtk-remote-launch [--sock PATH] command [args...]
+set -e
+HERE=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+LIB=""
+for c in \
+  "$HERE/target/release/libgtk_remote.so" \
+  "$HERE/build/libgtk-remote.so" \
+  "$HERE/../lib/libgtk_remote.so"
+do
+  if [ -f "$c" ]; then
+    LIB=$c
+    break
+  fi
+done
+if [ -z "$LIB" ]; then
+  LIB="libgtk_remote.so"
+fi
+
+SOCK=""
+if [ "${1:-}" = "--sock" ]; then
+  SOCK=$2
+  shift 2
+fi
+
+if [ $# -lt 1 ]; then
+  echo "usage: gtk-remote-launch [--sock PATH] command [args...]" >&2
+  exit 2
+fi
+
+export GTK_A11Y=atspi
+# Cairo paints glyphs into the X pixmap. The GL renderer leaves the header
+# bar and document text out of a window recording.
+export GSK_RENDERER="${GSK_RENDERER:-cairo}"
+export GDK_BACKEND="${GDK_BACKEND:-x11}"
+case ":${GTK_MODULES:-}:" in
+  *atk-bridge*) ;;
+  *)
+    if [ -n "${GTK_MODULES:-}" ]; then
+      GTK_MODULES="${GTK_MODULES}:gail:atk-bridge"
+    else
+      GTK_MODULES="gail:atk-bridge"
+    fi
+    export GTK_MODULES
+    ;;
+esac
+
+if [ -n "$SOCK" ]; then
+  export GTK_REMOTE_SOCK="$SOCK"
+fi
+
+case ":${LD_PRELOAD:-}:" in
+  *"$LIB"*) ;;
+  *) export LD_PRELOAD="${LIB}${LD_PRELOAD:+:$LD_PRELOAD}" ;;
+esac
+
+exec "$@"

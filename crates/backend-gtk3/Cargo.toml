@@ -1,0 +1,13 @@
+[package]
+name = "gtk-remote-gtk3"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "gtk_remote_gtk3"
+crate-type = ["cdylib"]
+
+[dependencies]
+libc = "0.2"
+libloading = "0.8"
+serde_json = "1"

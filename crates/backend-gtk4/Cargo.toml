@@ -1,0 +1,12 @@
+[package]
+name = "gtk-remote-gtk4"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "gtk_remote_gtk4"
+crate-type = ["cdylib"]
+
+[dependencies]
+libc = "0.2"
+serde_json = "1"
